@@ -1,5 +1,6 @@
 package com.github.sgtsilvio.gradle.javadoc.links
 
+import com.github.sgtsilvio.gradle.javadoc.links.internal.JavadocLinksExtensionImpl
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -19,6 +20,17 @@ import java.net.URL
 class JavadocLinksPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
+        val extension = project.extensions.create(
+            JavadocLinksExtension::class.java,
+            "javadocLinks",
+            JavadocLinksExtensionImpl::class.java
+        )
+        project.afterEvaluate {
+            register(project, extension)
+        }
+    }
+
+    private fun register(project: Project, extension: JavadocLinksExtension) {
         project.tasks.withType(Javadoc::class.java).configureEach { javadoc ->
 
             val options = javadoc.options as StandardJavadocDocletOptions
@@ -39,7 +51,7 @@ class JavadocLinksPlugin : Plugin<Project> {
             fun getPackageListDir(dependency: Dependency): String =
                 "${project.buildDir}/javadocLinks/${dependency.group}/${dependency.name}/${dependency.version}"
 
-            project.configurations.getByName("compileClasspath").allDependencies.forEach {
+            project.configurations.getByName(extension.configuration).allDependencies.forEach {
                 val link = getJavadocIoLink(it)
                 when (it) {
                     is ProjectDependency -> {
