@@ -8,6 +8,8 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
+import org.gradle.api.attributes.Category
+import org.gradle.api.attributes.DocsType
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
@@ -25,16 +27,33 @@ class JavadocLinksPlugin : Plugin<Project> {
     }
 
     override fun apply(project: Project) {
+        project.plugins.apply(JavaPlugin::class.java)
+
         val extension =
             project.extensions.create(JavadocLinksExtension::class.java, NAME, JavadocLinksExtensionImpl::class.java)
-        project.afterEvaluate {
-            register(project, extension)
-        }
-    }
 
-    private fun register(project: Project, extension: JavadocLinksExtension) {
-        project.tasks.withType(Javadoc::class.java).configureEach { javadoc ->
+        val javadocProvider = project.tasks.named(JavaPlugin.JAVADOC_TASK_NAME, Javadoc::class.java)
 
+        val javadocLinksProvider = project.tasks.register(NAME) { javadocLinksTask ->
+
+            val javadocLinksConfiguration = project.configurations.create(NAME) { configuration ->
+                configuration.isVisible = false
+                configuration.isTransitive = false
+                configuration.isCanBeResolved = true
+                configuration.isCanBeConsumed = false
+                configuration.attributes { attributes ->
+                    attributes.attribute(
+                        Category.CATEGORY_ATTRIBUTE,
+                        project.objects.named(Category::class.java, Category.DOCUMENTATION)
+                    )
+                    attributes.attribute(
+                        DocsType.DOCS_TYPE_ATTRIBUTE,
+                        project.objects.named(DocsType::class.java, DocsType.JAVADOC)
+                    )
+                }
+            }
+
+            val javadoc = javadocProvider.get()
             val options = javadoc.options as StandardJavadocDocletOptions
             val javaVersion = JavaVersion.current()
             val downloadAndLinkOffline = !javaVersion.isJava10Compatible
@@ -47,39 +66,58 @@ class JavadocLinksPlugin : Plugin<Project> {
                 }
             )
 
+            fun getOfflinePackageListLocation(group: String, name: String, version: String): String =
+                "${project.buildDir}/$NAME/${group}/${name}/${version}"
+
             val configuration = project.configurations.getByName(extension.configuration)
             configuration.incoming.resolutionResult.root.dependencies.forEach { dependencyResult ->
                 if (dependencyResult !is ResolvedDependencyResult) {
                     throw GradleException("can not create javadoc link for unresolved dependency: $dependencyResult")
                 }
                 val selected = dependencyResult.selected
-                val moduleVersion = selected.moduleVersion
+                val moduleId = selected.moduleVersion
                     ?: throw GradleException("can not create javadoc link for dependency without moduleVersion: $dependencyResult")
-                val url =
-                    "https://javadoc.io/doc/${moduleVersion.group}/${moduleVersion.name}/${moduleVersion.version}/"
-                when (val id = selected.id) {
+                val url = "https://javadoc.io/doc/${moduleId.group}/${moduleId.name}/${moduleId.version}/"
+                when (val componentId = selected.id) {
                     is ProjectComponentIdentifier -> {
-                        if (id.build.isCurrentBuild) {
-                            val includedProject = project.project(id.projectPath)
-                            val task = includedProject.tasks.named(JavaPlugin.JAVADOC_TASK_NAME, Javadoc::class.java)
-                            val packageListLoc = task.get().destinationDir!!.path
-                            javadoc.dependsOn(task)
-                            options.linksOffline(url, packageListLoc)
+                        options.linksOffline(
+                            url,
+                            getOfflinePackageListLocation(moduleId.group, moduleId.name, moduleId.version)
+                        )
+                        if (componentId.build.isCurrentBuild) {
+                            javadocLinksConfiguration.dependencies.add(
+                                project.dependencies.project(mapOf("path" to componentId.projectPath))
+                            )
                         } else {
-                            val includedBuild = project.gradle.includedBuild(id.projectName)
-                            val task = includedBuild.task(id.projectPath + ":" + JavaPlugin.JAVADOC_TASK_NAME)
-                            val packageListLoc = includedBuild.projectDir.resolve("build/docs/javadoc").path
-                            javadoc.dependsOn(task)
-                            options.linksOffline(url, packageListLoc)
+                            javadocLinksConfiguration.dependencies.add(
+                                project.dependencies.create("${moduleId.group}:${moduleId.name}")
+                            )
                         }
                     }
                     is ModuleComponentIdentifier -> {
                         if (downloadAndLinkOffline) {
-                            val packageListLoc = "${project.buildDir}/$NAME/${id.group}/${id.module}/${id.version}"
-                            options.linksOffline(url, packageListLoc)
+                            options.linksOffline(
+                                url,
+                                getOfflinePackageListLocation(moduleId.group, moduleId.name, moduleId.version)
+                            )
                         } else {
                             options.links(url)
                         }
+                    }
+                }
+            }
+
+            javadocLinksTask.inputs.files(javadocLinksConfiguration)
+
+            javadocLinksTask.doLast {
+                javadocLinksConfiguration.resolvedConfiguration.resolvedArtifacts.forEach { resolvedArtifact ->
+                    project.copy { copySpec ->
+                        copySpec.from(project.zipTree(resolvedArtifact.file)) { zipCopySpec ->
+                            zipCopySpec.include("package-list")
+                            zipCopySpec.include("element-list")
+                        }
+                        val id = resolvedArtifact.moduleVersion.id
+                        copySpec.into(getOfflinePackageListLocation(id.group, id.name, id.version))
                     }
                 }
             }
@@ -110,6 +148,10 @@ class JavadocLinksPlugin : Plugin<Project> {
                     }
                 }
             }
+        }
+
+        javadocProvider.configure { javadoc ->
+            javadoc.dependsOn(javadocLinksProvider)
         }
     }
 }
