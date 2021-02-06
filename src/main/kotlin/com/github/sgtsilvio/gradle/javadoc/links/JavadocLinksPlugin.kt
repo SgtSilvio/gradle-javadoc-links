@@ -120,10 +120,7 @@ class JavadocLinksPlugin : Plugin<Project> {
                         copySpec.into(getOfflinePackageListLocation(id.group, id.name, id.version))
                     }
                 }
-            }
-
-            if (downloadAndLinkOffline) {
-                javadoc.doFirst(NAME) {
+                if (downloadAndLinkOffline) {
                     options.linksOffline?.forEach {
                         val packageListFile = File(it.packagelistLoc, "package-list")
                         if (!packageListFile.exists()) {
