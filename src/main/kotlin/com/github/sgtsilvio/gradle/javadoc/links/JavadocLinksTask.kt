@@ -69,14 +69,14 @@ open class JavadocLinksTask @Inject constructor(private val javadocProvider: Pro
             .collect(Collectors.toSet())
 
         val compileClasspath = project.configurations.getByName(JavaPlugin.COMPILE_CLASSPATH_CONFIGURATION_NAME)
-        compileClasspath.incoming.resolutionResult.root.dependencies.forEach { dependencyResult ->
+        for (dependencyResult in compileClasspath.incoming.resolutionResult.root.dependencies) {
             if (dependencyResult !is ResolvedDependencyResult) {
                 throw GradleException("can not create javadoc link for unresolved dependency: $dependencyResult")
             }
             val selected = dependencyResult.selected
             val moduleVersionId = selected.moduleVersion
             if (moduleVersionId == null || !dependencySet.contains(Pair(moduleVersionId.group, moduleVersionId.name))) {
-                return@forEach
+                continue
             }
             when (val componentId = selected.id) {
                 is ModuleComponentIdentifier -> links.add(moduleVersionId)
@@ -113,7 +113,7 @@ open class JavadocLinksTask @Inject constructor(private val javadocProvider: Pro
         fun getOfflineLocation(moduleVersionId: ModuleVersionIdentifier): String =
             "${temporaryDir}/${moduleVersionId.group}/${moduleVersionId.name}/${moduleVersionId.version}"
 
-        links.forEach { moduleVersionId ->
+        for (moduleVersionId in links) {
             val url = urlProvider.apply(moduleVersionId)
             if (!downloadAndLinkOffline) {
                 javadocOptions.links(url)
@@ -141,7 +141,7 @@ open class JavadocLinksTask @Inject constructor(private val javadocProvider: Pro
             }
         }
 
-        projectLinksConfiguration.resolvedConfiguration.resolvedArtifacts.forEach { resolvedArtifact ->
+        for (resolvedArtifact in projectLinksConfiguration.resolvedConfiguration.resolvedArtifacts) {
             val moduleVersionId = resolvedArtifact.moduleVersion.id
             val url = urlProvider.apply(moduleVersionId)
             val offlineLocation = getOfflineLocation(moduleVersionId)
