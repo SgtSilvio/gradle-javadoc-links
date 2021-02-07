@@ -51,8 +51,8 @@ open class JavadocLinksTask @Inject constructor(private val javadocProvider: Pro
     private val links = LinkedList<ModuleVersionIdentifier>()
 
     @Internal
-    var urlProvider = Function<ModuleVersionIdentifier, String> { moduleId ->
-        "https://javadoc.io/doc/${moduleId.group}/${moduleId.name}/${moduleId.version}/"
+    var urlProvider = Function<ModuleVersionIdentifier, String> { moduleVersionId ->
+        "https://javadoc.io/doc/${moduleVersionId.group}/${moduleVersionId.name}/${moduleVersionId.version}/"
     }
 
     init {
