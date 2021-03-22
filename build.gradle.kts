@@ -20,10 +20,6 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-}
-
 gradlePlugin {
     plugins {
         create("javadoc-links") {
