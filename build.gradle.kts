@@ -23,10 +23,10 @@ repositories {
 gradlePlugin {
     plugins {
         create("javadoc-links") {
-            id = "${group}.${name}"
+            id = "$group.$name"
             displayName = "Gradle Javadoc links plugin"
             description = project.description
-            implementationClass = "${group}.javadoc.links.JavadocLinksPlugin"
+            implementationClass = "$group.javadoc.links.JavadocLinksPlugin"
         }
     }
 }
