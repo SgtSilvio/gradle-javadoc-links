@@ -24,6 +24,7 @@ import java.util.*
 import java.util.function.Function
 import java.util.stream.Collectors
 import javax.inject.Inject
+import org.gradle.kotlin.dsl.*
 
 /**
  * @author Silvio Giebl
@@ -31,20 +32,14 @@ import javax.inject.Inject
 open class JavadocLinksTask @Inject constructor(private val javadocProvider: Provider<Javadoc>) : DefaultTask() {
 
     @InputFiles
-    val projectLinksConfiguration: Configuration = project.configurations.create(name) { configuration ->
-        configuration.isVisible = false
-        configuration.isTransitive = false
-        configuration.isCanBeResolved = true
-        configuration.isCanBeConsumed = false
-        configuration.attributes { attributes ->
-            attributes.attribute(
-                Category.CATEGORY_ATTRIBUTE,
-                project.objects.named(Category::class.java, Category.DOCUMENTATION)
-            )
-            attributes.attribute(
-                DocsType.DOCS_TYPE_ATTRIBUTE,
-                project.objects.named(DocsType::class.java, DocsType.JAVADOC)
-            )
+    val projectLinksConfiguration: Configuration = project.configurations.create(name) {
+        isVisible = false
+        isTransitive = false
+        isCanBeResolved = true
+        isCanBeConsumed = false
+        attributes {
+            attribute(Category.CATEGORY_ATTRIBUTE, project.objects.named(Category::class, Category.DOCUMENTATION))
+            attribute(DocsType.DOCS_TYPE_ATTRIBUTE, project.objects.named(DocsType::class, DocsType.JAVADOC))
         }
     }
 
@@ -147,12 +142,12 @@ open class JavadocLinksTask @Inject constructor(private val javadocProvider: Pro
             val offlineLocation = getOfflineLocation(moduleVersionId)
             javadocOptions.linksOffline(url, offlineLocation)
 
-            project.copy { copySpec ->
-                copySpec.from(project.zipTree(resolvedArtifact.file)) { zipCopySpec ->
-                    zipCopySpec.include("package-list")
-                    zipCopySpec.include("element-list")
+            project.copy {
+                from(project.zipTree(resolvedArtifact.file)) {
+                    include("package-list")
+                    include("element-list")
                 }
-                copySpec.into(offlineLocation)
+                into(offlineLocation)
             }
         }
     }
