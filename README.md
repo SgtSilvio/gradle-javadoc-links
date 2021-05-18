@@ -9,7 +9,7 @@ Gradle plugin to ease defining Javadoc links
   - Works for subprojects (`include` in `settings.gradle`)
   - Works for dependencies substituted by included builds (`includeBuild` in `settings.gradle`)
 
-## How to use
+## How to Use
 
 ```kotlin
 plugins {
