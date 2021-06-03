@@ -6,6 +6,7 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.attributes.Category
 import org.gradle.api.attributes.DocsType
+import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
@@ -14,13 +15,14 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.named
 import java.util.function.Function
+import javax.inject.Inject
 
 /**
  * @author Silvio Giebl
  */
-open class JavadocLinksTask : DefaultTask() {
+abstract class JavadocLinksTask : DefaultTask() {
 
-    @InputFiles
+    @get:InputFiles
     val configuration: Configuration = project.configurations.create(name) {
         isVisible = false
         isTransitive = false
@@ -33,14 +35,17 @@ open class JavadocLinksTask : DefaultTask() {
         extendsFrom(project.configurations[JavaPlugin.API_ELEMENTS_CONFIGURATION_NAME])
     }
 
-    @Internal
+    @get:Internal
     var urlProvider = Function<ModuleVersionIdentifier, String> { moduleVersionId ->
         "https://javadoc.io/doc/${moduleVersionId.group}/${moduleVersionId.name}/${moduleVersionId.version}/"
     }
 
-    @OutputFile
+    @get:OutputFile
     val javadocOptionsFile =
         project.objects.fileProperty().convention(project.layout.buildDirectory.file("javadocLinks/javadoc.options"))
+
+    @get:Inject
+    protected abstract val fileSystemOperations: FileSystemOperations
 
     @TaskAction
     protected fun run() {
@@ -61,7 +66,7 @@ open class JavadocLinksTask : DefaultTask() {
 
             options += "-linkoffline $url $offlineLocation"
 
-            project.copy {
+            fileSystemOperations.copy {
                 from(project.zipTree(resolvedArtifact.file)) {
                     include("package-list")
                     include("element-list")

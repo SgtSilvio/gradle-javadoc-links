@@ -15,9 +15,10 @@ import javax.inject.Inject
 /**
  * @author Silvio Giebl
  */
-abstract class JavadocLinksMetadataRule @Inject constructor(
-    private val objects: ObjectFactory
-) : ComponentMetadataRule {
+abstract class JavadocLinksMetadataRule : ComponentMetadataRule {
+
+    @get:Inject
+    protected abstract val objects: ObjectFactory
 
     private val modulesWithExistingVariant = mutableSetOf<ModuleVersionIdentifier>()
 
