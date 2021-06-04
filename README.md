@@ -17,13 +17,24 @@ plugins {
 }
 ```
 
+## Requirements
+
+- Gradle 6.6 or higher
+
 ## Configuration
+
+### URL
 
 ```kotlin
 tasks.javadocLinks {
-    useDependenciesOf("apiElements")
-    urlProvider = Function<ModuleVersionIdentifier, String> { moduleVersionId ->
-        "https://javadoc.io/doc/${moduleVersionId.group}/${moduleVersionId.name}/${moduleVersionId.version}/"
-    }
+    urlProvider = { id -> "https://javadoc.io/doc/${id.group}/${id.name}/${id.version}/" }
+}
+```
+
+### Dependencies
+
+```kotlin
+configurations.javadocLinks {
+    setExtendsFrom(listOf(configurations.apiElements.get()))
 }
 ```
