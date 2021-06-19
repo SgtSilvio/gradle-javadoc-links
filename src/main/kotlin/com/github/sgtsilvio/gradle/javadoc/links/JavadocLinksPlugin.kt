@@ -23,7 +23,6 @@ class JavadocLinksPlugin : Plugin<Project> {
 
         project.configurations.create(CONFIGURATION_NAME) {
             isVisible = false
-            isTransitive = false
             isCanBeResolved = true
             isCanBeConsumed = false
             attributes {

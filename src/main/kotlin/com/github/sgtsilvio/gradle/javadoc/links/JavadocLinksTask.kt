@@ -32,11 +32,11 @@ abstract class JavadocLinksTask : DefaultTask() {
     @get:Internal
     protected val idToJavadocJars: Provider<Map<ModuleVersionIdentifier, File>>
 
-    @get:OutputFiles
-    protected val elementListFiles: Provider<List<File>>
+    @get:OutputDirectory
+    protected val outputDirectory = project.provider { temporaryDir }
 
-    @get:OutputFile
-    internal val javadocOptionsFile = project.provider { temporaryDir.resolve("javadoc.options") }
+    @get:Internal
+    internal val javadocOptionsFile = outputDirectory.map { it.resolve("javadoc.options") }
 
     init {
         val configuration = project.configurations[JavadocLinksPlugin.CONFIGURATION_NAME]
@@ -47,15 +47,6 @@ abstract class JavadocLinksTask : DefaultTask() {
                 map[resolvedArtifact.moduleVersion.id] = resolvedArtifact.file
             }
             map
-        }
-        elementListFiles = idToJavadocJars.map {
-            val list = mutableListOf<File>()
-            for (id in it.keys) {
-                val offlineLocation = getOfflineLocation(id)
-                list += offlineLocation.resolve(ELEMENT_LIST_NAME)
-                list += offlineLocation.resolve(PACKAGE_LIST_NAME)
-            }
-            list
         }
     }
 
