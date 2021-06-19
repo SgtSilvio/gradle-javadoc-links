@@ -7,7 +7,10 @@ import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.get
 import java.io.File
 import javax.inject.Inject
@@ -58,6 +61,10 @@ abstract class JavadocLinksTask : DefaultTask() {
 
     @TaskAction
     protected fun run() {
+        val idToJavadocJars = idToJavadocJars.get()
+        val outputDirectory = outputDirectory.get()
+        val javadocOptionsFile = javadocOptionsFile.get()
+
         val options = mutableListOf<String>()
 
         val javaVersion = JavaVersion.current()
@@ -67,10 +74,10 @@ abstract class JavadocLinksTask : DefaultTask() {
             "-link https://docs.oracle.com/javase/${javaVersion.majorVersion}/docs/api/"
         }
 
-        for (idToJavadocJar in idToJavadocJars.get().entries) {
+        for (idToJavadocJar in idToJavadocJars.entries) {
             val id = idToJavadocJar.key
             val url = urlProvider.invoke(id)
-            val offlineLocation = getOfflineLocation(id)
+            val offlineLocation = outputDirectory.resolve("${id.group}/${id.name}/${id.version}")
 
             options += "-linkoffline $url $offlineLocation"
 
@@ -87,9 +94,6 @@ abstract class JavadocLinksTask : DefaultTask() {
             }
         }
 
-        javadocOptionsFile.get().writeText(options.joinToString("\n"))
+        javadocOptionsFile.writeText(options.joinToString("\n"))
     }
-
-    private fun getOfflineLocation(id: ModuleVersionIdentifier) =
-        temporaryDir.resolve("${id.group}/${id.name}/${id.version}")
 }
