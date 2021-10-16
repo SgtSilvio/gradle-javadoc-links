@@ -27,3 +27,12 @@ pluginBundle {
     vcsUrl = "https://github.com/SgtSilvio/gradle-javadoc-links.git"
     tags = listOf("javadoc", "links")
 }
+
+dependencies {
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${property("junit-jupiter.version")}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
+}
