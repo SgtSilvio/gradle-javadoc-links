@@ -34,10 +34,10 @@ abstract class JavadocLinksMetadataRule : ComponentMetadataRule {
             addVariant("javadocLinkElements") {
                 attributes {
                     if (!modulesWithExistingVariant.contains(id)) {
-                        attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category::class, Category.DOCUMENTATION))
-                        attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType::class, DocsType.JAVADOC))
-                        attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling::class, Bundling.EXTERNAL))
-                        attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage::class, Usage.JAVA_RUNTIME))
+                        attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.DOCUMENTATION))
+                        attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType.JAVADOC))
+                        attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
+                        attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
                     }
                 }
                 withFiles {
