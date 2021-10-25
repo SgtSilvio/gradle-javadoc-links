@@ -52,6 +52,14 @@ class ConfigurationCacheTest {
                 api("com.hivemq:hivemq-extension-sdk:4.7.0") // gradle metadata, javadocElements variant
                 api("io.netty:netty-handler:4.1.68.Final") // no gradle metadata, no javadocElements variant
             }
+            tasks.javadocLinks {
+                urlProvider = { id ->
+                    when (id.group) {
+                        "group" -> "https://group.com/${'$'}{id.name}/${'$'}{id.version}/"
+                        else -> "https://javadoc.io/doc/${'$'}{id.group}/${'$'}{id.name}/${'$'}{id.version}/"
+                    }
+                }
+            }
             """.trimIndent()
         )
         projectDir.resolve("src/main/java/test/Test.java").apply { parentFile.mkdirs() }.writeText(
@@ -124,7 +132,25 @@ class ConfigurationCacheTest {
         assertEquals(TaskOutcome.SUCCESS, result.task(":included-project:javadocJar")?.outcome)
         assertEquals(TaskOutcome.SUCCESS, result.task(":javadocLinks")?.outcome)
         assertEquals(TaskOutcome.SUCCESS, result.task(":javadoc")?.outcome)
+        assertJavadocLinksFiles()
 
+        projectDir.resolve("build").deleteRecursively()
+
+        val result2 = GradleRunner.create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments("javadoc", "--configuration-cache")
+            .build()
+
+        assertTrue(result2.output.contains("Configuration cache entry reused"))
+        assertEquals(TaskOutcome.UP_TO_DATE, result2.task(":sub-test:javadocJar")?.outcome)
+        assertEquals(TaskOutcome.UP_TO_DATE, result2.task(":included-project:javadocJar")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, result2.task(":javadocLinks")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, result2.task(":javadoc")?.outcome)
+        assertJavadocLinksFiles()
+    }
+
+    private fun assertJavadocLinksFiles() {
         val buildDir = projectDir.resolve("build/tmp/javadocLinks")
         assertTrue(buildDir.resolve("javadoc.options").exists())
         assertTrue(buildDir.resolve("group/sub-test/0.1.0/element-list").exists())
@@ -137,21 +163,9 @@ class ConfigurationCacheTest {
         assertTrue(buildDir.resolve("io.netty/netty-handler/4.1.68.Final/package-list").exists())
         val lines = buildDir.resolve("javadoc.options").readLines()
         assertEquals(lines[0], "-link https://docs.oracle.com/en/java/javase/11/docs/api/")
-        assertTrue(lines[1].matches(Regex("-linkoffline https://javadoc\\.io/doc/group/sub-test/0\\.1\\.0/ .*/build/tmp/javadocLinks/group/sub-test/0\\.1\\.0")))
-        assertTrue(lines[2].matches(Regex("-linkoffline https://javadoc\\.io/doc/group/included-test/0\\.1\\.0/ .*/build/tmp/javadocLinks/group/included-test/0\\.1\\.0")))
+        assertTrue(lines[1].matches(Regex("-linkoffline https://group\\.com/sub-test/0\\.1\\.0/ .*/build/tmp/javadocLinks/group/sub-test/0\\.1\\.0")))
+        assertTrue(lines[2].matches(Regex("-linkoffline https://group\\.com/included-test/0\\.1\\.0/ .*/build/tmp/javadocLinks/group/included-test/0\\.1\\.0")))
         assertTrue(lines[3].matches(Regex("-linkoffline https://javadoc\\.io/doc/com\\.hivemq/hivemq-extension-sdk/4\\.7\\.0/ .*/build/tmp/javadocLinks/com\\.hivemq/hivemq-extension-sdk/4\\.7\\.0")))
         assertTrue(lines[4].matches(Regex("-linkoffline https://javadoc\\.io/doc/io\\.netty/netty-handler/4\\.1\\.68\\.Final/ .*/build/tmp/javadocLinks/io\\.netty/netty-handler/4\\.1\\.68\\.Final")))
-
-        val result2 = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("javadoc", "--configuration-cache")
-            .build()
-
-        assertTrue(result2.output.contains("Configuration cache entry reused"))
-        assertEquals(TaskOutcome.UP_TO_DATE, result2.task(":sub-test:javadocJar")?.outcome)
-        assertEquals(TaskOutcome.UP_TO_DATE, result2.task(":included-project:javadocJar")?.outcome)
-        assertEquals(TaskOutcome.UP_TO_DATE, result2.task(":javadocLinks")?.outcome)
-        assertEquals(TaskOutcome.UP_TO_DATE, result2.task(":javadoc")?.outcome)
     }
 }
