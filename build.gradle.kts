@@ -1,11 +1,16 @@
 plugins {
     `kotlin-dsl`
-    `java-gradle-plugin`
     id("com.gradle.plugin-publish")
 }
 
 group = "com.github.sgtsilvio.gradle"
 description = "Gradle plugin to ease defining Javadoc links"
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
+}
 
 repositories {
     mavenCentral()
