@@ -1,6 +1,6 @@
 # Gradle Javadoc Links Plugin
 
-[![Maven metadata URL](https://img.shields.io/maven-metadata/v?color=brightgreen&label=gradle%20plugin&metadataUrl=https%3A%2F%2Fplugins.gradle.org%2Fm2%2Fcom%2Fgithub%2Fsgtsilvio%2Fgradle%2Fjavadoc-links%2Fcom.github.sgtsilvio.gradle.javadoc-links.gradle.plugin%2Fmaven-metadata.xml)](https://plugins.gradle.org/plugin/com.github.sgtsilvio.gradle.javadoc-links)
+[![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/com.github.sgtsilvio.gradle.javadoc-links?color=brightgreen&style=for-the-badge)](https://plugins.gradle.org/plugin/com.github.sgtsilvio.gradle.javadoc-links)
 
 Gradle plugin to ease defining Javadoc links
 - Links to JDK javadoc of the used java version
