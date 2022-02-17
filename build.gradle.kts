@@ -1,15 +1,36 @@
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     `kotlin-dsl`
-    id("com.gradle.plugin-publish")
+    `maven-publish`
+    alias(libs.plugins.plugin.publish)
+    alias(libs.plugins.metadata)
 }
 
 group = "com.github.sgtsilvio.gradle"
 description = "Gradle plugin to ease defining Javadoc links"
 
+metadata {
+    readableName.set("Gradle Javadoc Links Plugin")
+    license {
+        apache2()
+    }
+    developers {
+        register("SgtSilvio") {
+            fullName.set("Silvio Giebl")
+        }
+    }
+    github {
+        org.set("SgtSilvio")
+        repo.set("gradle-javadoc-links")
+        issues()
+    }
+}
+
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(8))
     }
+    withSourcesJar()
 }
 
 repositories {
@@ -20,7 +41,7 @@ gradlePlugin {
     plugins {
         create("javadoc-links") {
             id = "$group.$name"
-            displayName = "Gradle Javadoc links plugin"
+            displayName = metadata.readableName.get()
             description = project.description
             implementationClass = "$group.javadoc.links.JavadocLinksPlugin"
         }
@@ -28,15 +49,13 @@ gradlePlugin {
 }
 
 pluginBundle {
-    website = "https://github.com/SgtSilvio/gradle-javadoc-links"
-    vcsUrl = "https://github.com/SgtSilvio/gradle-javadoc-links.git"
+    website = metadata.url.get()
+    vcsUrl = metadata.scm.get().url.get()
     tags = listOf("javadoc", "links")
 }
 
-dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter:${property("junit-jupiter.version")}")
-}
-
-tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
+testing {
+    suites.named<JvmTestSuite>("test") {
+        useJUnitJupiter(libs.versions.junit.jupiter.get())
+    }
 }
