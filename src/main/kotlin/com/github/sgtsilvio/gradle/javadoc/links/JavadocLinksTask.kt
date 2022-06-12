@@ -40,6 +40,7 @@ abstract class JavadocLinksTask : DefaultTask() {
     internal val javadocOptionsFile = outputDirectory.map { it.resolve("javadoc.options") }
 
     init {
+        JavadocLinksMetadataRule.apply(project)
         val configuration = project.configurations[JavadocLinksPlugin.CONFIGURATION_NAME]
         javadocJars = configuration
         moduleVersionIds = project.provider {
