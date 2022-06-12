@@ -7,10 +7,7 @@ import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 import org.gradle.kotlin.dsl.get
 import java.io.File
 import javax.inject.Inject
@@ -30,10 +27,11 @@ abstract class JavadocLinksTask : DefaultTask() {
         { id -> "https://javadoc.io/doc/${id.group}/${id.name}/${id.version}/" }
 
     @get:InputFiles
+    @get:PathSensitive(PathSensitivity.NONE)
     protected val javadocJars: FileCollection
 
-    @get:Internal
-    protected val idToJavadocJars: Provider<Map<ModuleVersionIdentifier, File>>
+    @get:Input
+    protected val moduleVersionIds: Provider<List<ModuleVersionIdentifier>>
 
     @get:OutputDirectory
     protected val outputDirectory = project.provider { temporaryDir }
@@ -44,12 +42,12 @@ abstract class JavadocLinksTask : DefaultTask() {
     init {
         val configuration = project.configurations[JavadocLinksPlugin.CONFIGURATION_NAME]
         javadocJars = configuration
-        idToJavadocJars = project.provider {
-            val map = mutableMapOf<ModuleVersionIdentifier, File>()
+        moduleVersionIds = project.provider {
+            val map = mutableMapOf<File, ModuleVersionIdentifier>()
             for (resolvedArtifact in configuration.resolvedConfiguration.resolvedArtifacts) {
-                map[resolvedArtifact.moduleVersion.id] = resolvedArtifact.file
+                map[resolvedArtifact.file] = resolvedArtifact.moduleVersion.id
             }
-            map
+            javadocJars.files.map { map[it]!! }
         }
     }
 
@@ -61,7 +59,8 @@ abstract class JavadocLinksTask : DefaultTask() {
 
     @TaskAction
     protected fun run() {
-        val idToJavadocJars = idToJavadocJars.get()
+        val javadocJars = javadocJars.files
+        val moduleVersionIds = moduleVersionIds.get()
         val outputDirectory = outputDirectory.get()
         val javadocOptionsFile = javadocOptionsFile.get()
 
@@ -74,15 +73,15 @@ abstract class JavadocLinksTask : DefaultTask() {
             "-link https://docs.oracle.com/javase/${javaVersion.majorVersion}/docs/api/"
         }
 
-        for (idToJavadocJar in idToJavadocJars.entries) {
-            val id = idToJavadocJar.key
+        javadocJars.forEachIndexed { i, javadocJar ->
+            val id = moduleVersionIds[i]
             val url = urlProvider.invoke(id)
             val offlineLocation = outputDirectory.resolve("${id.group}/${id.name}/${id.version}")
 
             options += "-linkoffline $url $offlineLocation"
 
             fileSystemOperations.copy {
-                from(archiveOperations.zipTree(idToJavadocJar.value)) { include(ELEMENT_LIST_NAME, PACKAGE_LIST_NAME) }
+                from(archiveOperations.zipTree(javadocJar)) { include(ELEMENT_LIST_NAME, PACKAGE_LIST_NAME) }
                 into(offlineLocation)
             }
             val elementListFile = offlineLocation.resolve(ELEMENT_LIST_NAME)
