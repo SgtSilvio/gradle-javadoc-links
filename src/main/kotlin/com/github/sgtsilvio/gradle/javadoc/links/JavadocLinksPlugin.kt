@@ -6,10 +6,7 @@ import org.gradle.api.attributes.Category
 import org.gradle.api.attributes.DocsType
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.javadoc.Javadoc
-import org.gradle.kotlin.dsl.apply
-import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.named
-import org.gradle.kotlin.dsl.register
+import org.gradle.kotlin.dsl.*
 
 /**
  * @author Silvio Giebl
@@ -35,11 +32,15 @@ class JavadocLinksPlugin : Plugin<Project> {
             extendsFrom(project.configurations[JavaPlugin.API_ELEMENTS_CONFIGURATION_NAME])
         }
 
-        val javadocLinksProvider = project.tasks.register<JavadocLinksTask>(TASK_NAME) {}
+        val javadoc = project.tasks.named<Javadoc>(JavaPlugin.JAVADOC_TASK_NAME)
 
-        project.tasks.named<Javadoc>(JavaPlugin.JAVADOC_TASK_NAME) {
-            dependsOn(javadocLinksProvider)
-            options.optionFiles(javadocLinksProvider.get().javadocOptionsFile.get())
+        val javadocLinksTask = project.tasks.register<JavadocLinksTask>(TASK_NAME) {
+            javaVersion.set(javadoc.flatMap { it.javadocTool }.map { it.metadata.languageVersion })
+        }
+
+        javadoc {
+            dependsOn(javadocLinksTask)
+            options.optionFiles(javadocLinksTask.get().javadocOptionsFile.get())
         }
     }
 }

@@ -43,6 +43,11 @@ class ConfigurationCacheTest {
                 `java-library`
                 id("com.github.sgtsilvio.gradle.javadoc-links")
             }
+            java {
+                toolchain {
+                    languageVersion.set(JavaLanguageVersion.of(11))
+                }
+            }
             repositories {
                 mavenCentral()
             }

@@ -8,7 +8,9 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
+import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.get
+import org.gradle.kotlin.dsl.property
 import java.io.File
 import javax.inject.Inject
 
@@ -32,6 +34,10 @@ abstract class JavadocLinksTask : DefaultTask() {
 
     @get:Input
     protected val moduleVersionIds: Provider<List<ModuleVersionIdentifier>>
+
+    @get:Input
+    internal val javaVersion = project.objects.property<JavaLanguageVersion>()
+        .convention(JavaLanguageVersion.of(JavaVersion.current().majorVersion))
 
     @get:OutputDirectory
     protected val outputDirectory = project.provider { temporaryDir }
@@ -62,16 +68,16 @@ abstract class JavadocLinksTask : DefaultTask() {
     protected fun run() {
         val javadocJars = javadocJars.files
         val moduleVersionIds = moduleVersionIds.get()
+        val javaVersion = javaVersion.get()
         val outputDirectory = outputDirectory.get()
         val javadocOptionsFile = javadocOptionsFile.get()
 
         val options = mutableListOf<String>()
 
-        val javaVersion = JavaVersion.current()
-        options += if (javaVersion.isJava11Compatible) {
-            "-link https://docs.oracle.com/en/java/javase/${javaVersion.majorVersion}/docs/api/"
+        options += if (javaVersion.asInt() >= 11) {
+            "-link https://docs.oracle.com/en/java/javase/${javaVersion}/docs/api/"
         } else {
-            "-link https://docs.oracle.com/javase/${javaVersion.majorVersion}/docs/api/"
+            "-link https://docs.oracle.com/javase/${javaVersion}/docs/api/"
         }
 
         javadocJars.forEachIndexed { i, javadocJar ->
