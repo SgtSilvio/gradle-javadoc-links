@@ -1,32 +1,16 @@
 package com.github.sgtsilvio.gradle.javadoc.links
 
-import org.gradle.api.DefaultTask
-import org.gradle.api.JavaVersion
 import org.gradle.api.artifacts.ModuleVersionIdentifier
-import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.FileCollection
-import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
-import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.property
 import java.io.File
-import javax.inject.Inject
 
 /**
  * @author Silvio Giebl
  */
-abstract class JavadocLinksTask : DefaultTask() {
-
-    private companion object {
-        const val ELEMENT_LIST_NAME = "element-list"
-        const val PACKAGE_LIST_NAME = "package-list"
-    }
-
-    @get:Internal
-    var urlProvider: (ModuleVersionIdentifier) -> String =
-        { id -> "https://javadoc.io/doc/${id.group}/${id.name}/${id.version}/" }
+abstract class JavadocLinksTask : AbstractJavadocLinksTask() {
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.NONE)
@@ -35,18 +19,7 @@ abstract class JavadocLinksTask : DefaultTask() {
     @get:Input
     protected val moduleVersionIds: Provider<List<ModuleVersionIdentifier>>
 
-    @get:Input
-    internal val javaVersion = project.objects.property<JavaLanguageVersion>()
-        .convention(JavaLanguageVersion.of(JavaVersion.current().majorVersion))
-
-    @get:OutputDirectory
-    protected val outputDirectory = project.provider { temporaryDir }
-
-    @get:Internal
-    internal val javadocOptionsFile = outputDirectory.map { it.resolve("javadoc.options") }
-
     init {
-        JavadocLinksMetadataRule.apply(project)
         val configuration = project.configurations[JavadocLinksPlugin.CONFIGURATION_NAME]
         javadocJars = configuration
         moduleVersionIds = project.provider {
@@ -58,12 +31,6 @@ abstract class JavadocLinksTask : DefaultTask() {
         }
     }
 
-    @get:Inject
-    protected abstract val fileSystemOperations: FileSystemOperations
-
-    @get:Inject
-    protected abstract val archiveOperations: ArchiveOperations
-
     @TaskAction
     protected fun run() {
         val javadocJars = javadocJars.files
@@ -73,31 +40,11 @@ abstract class JavadocLinksTask : DefaultTask() {
         val javadocOptionsFile = javadocOptionsFile.get()
 
         val options = mutableListOf<String>()
-
-        options += if (javaVersion.asInt() >= 11) {
-            "-link https://docs.oracle.com/en/java/javase/${javaVersion}/docs/api/"
-        } else {
-            "-link https://docs.oracle.com/javase/${javaVersion}/docs/api/"
-        }
+        options += linkToStdLib(javaVersion)
 
         javadocJars.forEachIndexed { i, javadocJar ->
             val id = moduleVersionIds[i]
-            val url = urlProvider.invoke(id)
-            val offlineLocation = outputDirectory.resolve("${id.group}/${id.name}/${id.version}")
-
-            options += "-linkoffline $url $offlineLocation"
-
-            fileSystemOperations.copy {
-                from(archiveOperations.zipTree(javadocJar)) { include(ELEMENT_LIST_NAME, PACKAGE_LIST_NAME) }
-                into(offlineLocation)
-            }
-            val elementListFile = offlineLocation.resolve(ELEMENT_LIST_NAME)
-            val packageListFile = offlineLocation.resolve(PACKAGE_LIST_NAME)
-            if (elementListFile.exists() && !packageListFile.exists()) {
-                elementListFile.copyTo(packageListFile)
-            } else if (!elementListFile.exists() && packageListFile.exists()) {
-                packageListFile.copyTo(elementListFile)
-            }
+            options += linkToComponent(id, javadocJar, outputDirectory)
         }
 
         javadocOptionsFile.writeText(options.joinToString("\n"))

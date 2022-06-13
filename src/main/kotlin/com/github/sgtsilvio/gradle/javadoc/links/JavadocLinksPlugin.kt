@@ -7,6 +7,7 @@ import org.gradle.api.attributes.DocsType
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.kotlin.dsl.*
+import org.gradle.util.GradleVersion
 
 /**
  * @author Silvio Giebl
@@ -21,7 +22,7 @@ class JavadocLinksPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.plugins.apply(JavaPlugin::class)
 
-        project.configurations.create(CONFIGURATION_NAME) {
+        val configuration = project.configurations.create(CONFIGURATION_NAME) {
             isVisible = false
             isCanBeResolved = true
             isCanBeConsumed = false
@@ -34,8 +35,15 @@ class JavadocLinksPlugin : Plugin<Project> {
 
         val javadoc = project.tasks.named<Javadoc>(JavaPlugin.JAVADOC_TASK_NAME)
 
-        val javadocLinksTask = project.tasks.register<JavadocLinksTask>(TASK_NAME) {
-            javaVersion.set(javadoc.flatMap { it.javadocTool }.map { it.metadata.languageVersion })
+        val javadocLinksTask = if (GradleVersion.current() >= GradleVersion.version("7.4")) {
+            project.tasks.register<NewJavadocLinksTask>(TASK_NAME) {
+                useConfiguration(configuration)
+                javaVersion.set(javadoc.flatMap { it.javadocTool }.map { it.metadata.languageVersion })
+            }
+        } else {
+            project.tasks.register<JavadocLinksTask>(TASK_NAME) {
+                javaVersion.set(javadoc.flatMap { it.javadocTool }.map { it.metadata.languageVersion })
+            }
         }
 
         javadoc {
