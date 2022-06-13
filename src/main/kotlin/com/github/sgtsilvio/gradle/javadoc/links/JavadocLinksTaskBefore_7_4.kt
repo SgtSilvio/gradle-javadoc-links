@@ -11,7 +11,7 @@ import kotlin.collections.set
 /**
  * @author Silvio Giebl
  */
-abstract class JavadocLinksTask : AbstractJavadocLinksTask() {
+abstract class JavadocLinksTaskBefore_7_4 : AbstractJavadocLinksTask() {
 
     @get:Input
     protected val moduleVersionIds = project.objects.listProperty<ModuleVersionIdentifier>()

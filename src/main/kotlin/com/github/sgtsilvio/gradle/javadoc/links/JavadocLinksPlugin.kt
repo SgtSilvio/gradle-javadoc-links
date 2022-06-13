@@ -37,7 +37,7 @@ class JavadocLinksPlugin : Plugin<Project> {
 
         val javadocLinksTaskClass =
             if (GradleVersion.current() >= GradleVersion.version("7.4")) NewJavadocLinksTask::class
-            else JavadocLinksTask::class
+            else JavadocLinksTaskBefore_7_4::class
         val javadocLinksTask = project.tasks.register(TASK_NAME, javadocLinksTaskClass) {
             useConfiguration(configuration)
             javaVersion.set(javadoc.flatMap { it.javadocTool }.map { it.metadata.languageVersion })
