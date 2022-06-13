@@ -4,7 +4,8 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.component.ComponentArtifactIdentifier
 import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.property
 import java.util.*
@@ -14,17 +15,13 @@ import java.util.*
  */
 abstract class NewJavadocLinksTask : AbstractJavadocLinksTask() {
 
-    @get:InputFiles
-    @get:PathSensitive(PathSensitivity.NONE)
-    protected val javadocJars = project.objects.fileCollection()
-
     @get:Input
     protected val artifactIds = project.objects.listProperty<ComponentArtifactIdentifier>()
 
     @get:Input
     protected val rootComponent = project.objects.property<ResolvedComponentResult>()
 
-    fun useConfiguration(configuration: Configuration) {
+    override fun useConfiguration(configuration: Configuration) {
         val artifacts = configuration.incoming.artifacts
         javadocJars.setFrom(artifacts.artifactFiles)
         artifactIds.set(artifacts.resolvedArtifacts.map { results -> results.map { result -> result.id } })
@@ -33,10 +30,10 @@ abstract class NewJavadocLinksTask : AbstractJavadocLinksTask() {
 
     @TaskAction
     protected fun run() {
+        val javaVersion = javaVersion.get()
         val javadocJars = javadocJars.files
         val artifactIds = artifactIds.get()
         val rootComponent = rootComponent.get()
-        val javaVersion = javaVersion.get()
         val outputDirectory = outputDirectory.get()
         val javadocOptionsFile = javadocOptionsFile.get()
 

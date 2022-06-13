@@ -2,12 +2,11 @@ package com.github.sgtsilvio.gradle.javadoc.links
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.JavaVersion
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.FileSystemOperations
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.*
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.property
 import java.io.File
@@ -28,8 +27,12 @@ abstract class AbstractJavadocLinksTask : DefaultTask() {
         { id -> "https://javadoc.io/doc/${id.group}/${id.name}/${id.version}/" }
 
     @get:Input
-    internal val javaVersion = project.objects.property<JavaLanguageVersion>()
+    val javaVersion = project.objects.property<JavaLanguageVersion>()
         .convention(JavaLanguageVersion.of(JavaVersion.current().majorVersion))
+
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.NONE)
+    protected val javadocJars = project.objects.fileCollection()
 
     @get:OutputDirectory
     protected val outputDirectory = project.provider { temporaryDir }
@@ -47,7 +50,9 @@ abstract class AbstractJavadocLinksTask : DefaultTask() {
         JavadocLinksMetadataRule.apply(project)
     }
 
-    protected fun linkToStdLib(javaVersion: JavaLanguageVersion) : String {
+    abstract fun useConfiguration(configuration: Configuration)
+
+    protected fun linkToStdLib(javaVersion: JavaLanguageVersion): String {
         return if (javaVersion.asInt() >= 11) {
             "-link https://docs.oracle.com/en/java/javase/${javaVersion}/docs/api/"
         } else {
@@ -55,7 +60,7 @@ abstract class AbstractJavadocLinksTask : DefaultTask() {
         }
     }
 
-    protected fun linkToComponent(id: ModuleVersionIdentifier, javadocJar: File, outputDirectory: File) : String {
+    protected fun linkToComponent(id: ModuleVersionIdentifier, javadocJar: File, outputDirectory: File): String {
         val url = urlProvider.invoke(id)
         val offlineLocation = outputDirectory.resolve("${id.group}/${id.name}/${id.version}")
 
