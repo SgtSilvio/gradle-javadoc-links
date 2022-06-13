@@ -36,7 +36,7 @@ class JavadocLinksPlugin : Plugin<Project> {
         val javadoc = project.tasks.named<Javadoc>(JavaPlugin.JAVADOC_TASK_NAME)
 
         val javadocLinksTaskClass =
-            if (GradleVersion.current() >= GradleVersion.version("7.4")) NewJavadocLinksTask::class
+            if (GradleVersion.current() >= GradleVersion.version("7.4")) JavadocLinksTask::class
             else JavadocLinksTaskBefore_7_4::class
         val javadocLinksTask = project.tasks.register(TASK_NAME, javadocLinksTaskClass) {
             useConfiguration(configuration)

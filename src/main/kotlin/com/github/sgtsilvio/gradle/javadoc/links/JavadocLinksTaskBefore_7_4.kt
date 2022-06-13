@@ -11,6 +11,7 @@ import kotlin.collections.set
 /**
  * @author Silvio Giebl
  */
+@Suppress("ClassName")
 abstract class JavadocLinksTaskBefore_7_4 : AbstractJavadocLinksTask() {
 
     @get:Input

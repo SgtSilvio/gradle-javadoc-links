@@ -13,7 +13,7 @@ import java.util.*
 /**
  * @author Silvio Giebl
  */
-abstract class NewJavadocLinksTask : AbstractJavadocLinksTask() {
+abstract class JavadocLinksTask : AbstractJavadocLinksTask() {
 
     @get:Input
     protected val artifactIds = project.objects.listProperty<ComponentArtifactIdentifier>()
