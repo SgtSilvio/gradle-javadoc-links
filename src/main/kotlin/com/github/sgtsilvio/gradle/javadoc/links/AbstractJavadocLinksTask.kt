@@ -22,7 +22,7 @@ abstract class AbstractJavadocLinksTask : DefaultTask() {
         const val PACKAGE_LIST_NAME = "package-list"
     }
 
-    @get:Internal
+    @get:Input
     var urlProvider: (ModuleVersionIdentifier) -> String =
         { id -> "https://javadoc.io/doc/${id.group}/${id.name}/${id.version}/" }
 
