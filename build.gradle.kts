@@ -21,7 +21,6 @@ metadata {
     }
     github {
         org.set("SgtSilvio")
-        repo.set("gradle-javadoc-links")
         issues()
     }
 }
