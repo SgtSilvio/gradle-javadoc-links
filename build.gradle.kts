@@ -36,24 +36,21 @@ repositories {
 }
 
 gradlePlugin {
+    website.set(metadata.url)
+    vcsUrl.set(metadata.scm.get().url)
     plugins {
         create("javadoc-links") {
             id = "$group.$name"
+            implementationClass = "$group.javadoc.links.JavadocLinksPlugin"
             displayName = metadata.readableName.get()
             description = project.description
-            implementationClass = "$group.javadoc.links.JavadocLinksPlugin"
+            tags.set(listOf("javadoc", "links"))
         }
     }
 }
 
-pluginBundle {
-    website = metadata.url.get()
-    vcsUrl = metadata.scm.get().url.get()
-    tags = listOf("javadoc", "links")
-}
-
 testing {
     suites.named<JvmTestSuite>("test") {
-        useJUnitJupiter(libs.versions.junit.jupiter.get())
+        useJUnitJupiter(libs.versions.junit.jupiter)
     }
 }
