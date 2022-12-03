@@ -5,14 +5,15 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import java.io.File
 
 /**
  * @author Silvio Giebl
  */
-class ConfigurationCacheTest {
+internal class ConfigurationCacheTest {
 
     @TempDir
     lateinit var rootDir: File
@@ -27,8 +28,9 @@ class ConfigurationCacheTest {
         includedProjectDir = rootDir.resolve("included-project").apply { mkdir() }
     }
 
-    @Test
-    fun configurationCacheReused() {
+    @ParameterizedTest
+    @ValueSource(strings = ["6.8", "7.4.2", "7.5.1"]) // ensure that version checks work: min version, >= 7.4, >= 7.5
+    fun configurationCacheReused(gradleVersion: String) {
         projectDir.resolve("settings.gradle.kts").writeText(
             """
             rootProject.name = "test"
@@ -127,6 +129,7 @@ class ConfigurationCacheTest {
         )
 
         val result = GradleRunner.create()
+            .withGradleVersion(gradleVersion)
             .withProjectDir(projectDir)
             .withPluginClasspath()
             .withArguments("javadoc", "--configuration-cache")
@@ -142,6 +145,7 @@ class ConfigurationCacheTest {
         projectDir.resolve("build").deleteRecursively()
 
         val result2 = GradleRunner.create()
+            .withGradleVersion(gradleVersion)
             .withProjectDir(projectDir)
             .withPluginClasspath()
             .withArguments("javadoc", "--configuration-cache")
@@ -172,5 +176,6 @@ class ConfigurationCacheTest {
         assertTrue(lines[2].matches(Regex("-linkoffline https://group\\.com/included-test/0\\.1\\.0/ .*/build/tmp/javadocLinks/group/included-test/0\\.1\\.0")))
         assertTrue(lines[3].matches(Regex("-linkoffline https://javadoc\\.io/doc/com\\.hivemq/hivemq-extension-sdk/4\\.7\\.0/ .*/build/tmp/javadocLinks/com\\.hivemq/hivemq-extension-sdk/4\\.7\\.0")))
         assertTrue(lines[4].matches(Regex("-linkoffline https://javadoc\\.io/doc/io\\.netty/netty-handler/4\\.1\\.68\\.Final/ .*/build/tmp/javadocLinks/io\\.netty/netty-handler/4\\.1\\.68\\.Final")))
+        assertEquals(5, lines.size)
     }
 }
