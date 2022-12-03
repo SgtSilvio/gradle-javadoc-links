@@ -22,10 +22,15 @@ class JavadocLinksPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.plugins.apply(JavaPlugin::class)
 
+        if (GradleVersion.current() < GradleVersion.version("7.5")) {
+            project.dependencies.components.all<JavadocLinksMetadataRule>()
+        }
+
         val configuration = project.configurations.create(CONFIGURATION_NAME) {
             isVisible = false
             isCanBeResolved = true
             isCanBeConsumed = false
+            isTransitive = false
             attributes {
                 attribute(Category.CATEGORY_ATTRIBUTE, project.objects.named(Category.DOCUMENTATION))
                 attribute(DocsType.DOCS_TYPE_ATTRIBUTE, project.objects.named(DocsType.JAVADOC))
@@ -35,9 +40,10 @@ class JavadocLinksPlugin : Plugin<Project> {
 
         val javadoc = project.tasks.named<Javadoc>(JavaPlugin.JAVADOC_TASK_NAME)
 
-        val javadocLinksTaskClass =
-            if (GradleVersion.current() >= GradleVersion.version("7.4")) JavadocLinksTask::class
-            else JavadocLinksTaskBefore_7_4::class
+        val javadocLinksTaskClass = when {
+            GradleVersion.current() >= GradleVersion.version("7.4") -> JavadocLinksTask::class
+            else -> JavadocLinksTaskBefore_7_4::class
+        }
         val javadocLinksTask = project.tasks.register(TASK_NAME, javadocLinksTaskClass) {
             useConfiguration(configuration)
             javaVersion.set(javadoc.flatMap { it.javadocTool }.map { it.metadata.languageVersion })

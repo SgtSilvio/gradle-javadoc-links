@@ -46,10 +46,6 @@ abstract class AbstractJavadocLinksTask : DefaultTask() {
     @get:Inject
     protected abstract val archiveOperations: ArchiveOperations
 
-    init {
-        JavadocLinksMetadataRule.apply(project)
-    }
-
     abstract fun useConfiguration(configuration: Configuration)
 
     protected fun linkToStdLib(javaVersion: JavaLanguageVersion): String {

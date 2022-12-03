@@ -1,6 +1,5 @@
 package com.github.sgtsilvio.gradle.javadoc.links
 
-import org.gradle.api.Project
 import org.gradle.api.artifacts.ComponentMetadataContext
 import org.gradle.api.artifacts.ComponentMetadataRule
 import org.gradle.api.attributes.Bundling
@@ -9,7 +8,6 @@ import org.gradle.api.attributes.DocsType
 import org.gradle.api.attributes.Usage
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.kotlin.dsl.all
 import org.gradle.kotlin.dsl.named
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -18,17 +16,6 @@ import javax.inject.Inject
  * @author Silvio Giebl
  */
 abstract class JavadocLinksMetadataRule : ComponentMetadataRule {
-
-    companion object {
-        private var applied = false
-
-        fun apply(project: Project) {
-            if (!applied) {
-                applied = true
-                project.dependencies.components.all<JavadocLinksMetadataRule>()
-            }
-        }
-    }
 
     @get:Inject
     protected abstract val objects: ObjectFactory
