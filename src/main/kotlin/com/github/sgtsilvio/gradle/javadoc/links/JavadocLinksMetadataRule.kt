@@ -20,26 +20,24 @@ abstract class JavadocLinksMetadataRule : ComponentMetadataRule {
     @get:Inject
     protected abstract val objects: ObjectFactory
 
-    override fun execute(context: ComponentMetadataContext) {
-        context.details.run {
-            val existing = AtomicBoolean()
-            withVariant(JavaPlugin.JAVADOC_ELEMENTS_CONFIGURATION_NAME) {
-                attributes {
-                    existing.set(true)
+    override fun execute(context: ComponentMetadataContext) = context.details.run {
+        val existing = AtomicBoolean()
+        withVariant(JavaPlugin.JAVADOC_ELEMENTS_CONFIGURATION_NAME) {
+            attributes {
+                existing.set(true)
+            }
+        }
+        addVariant("javadocLinkElements") {
+            attributes {
+                if (!existing.get()) {
+                    attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.DOCUMENTATION))
+                    attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType.JAVADOC))
+                    attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
+                    attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
                 }
             }
-            addVariant("javadocLinkElements") {
-                attributes {
-                    if (!existing.get()) {
-                        attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.DOCUMENTATION))
-                        attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType.JAVADOC))
-                        attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
-                        attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
-                    }
-                }
-                withFiles {
-                    addFile("${id.name}-${id.version}-javadoc.jar")
-                }
+            withFiles {
+                addFile("${id.name}-${id.version}-javadoc.jar")
             }
         }
     }

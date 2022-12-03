@@ -52,7 +52,7 @@ abstract class JavadocLinksTask : AbstractJavadocLinksTask() {
 
     private inline fun iterateComponents(
         rootComponent: ResolvedComponentResult,
-        action: (ResolvedComponentResult) -> Unit
+        action: (ResolvedComponentResult) -> Unit,
     ) {
         val processedComponents = HashSet<ResolvedComponentResult>()
         val componentsToProcess = LinkedList<ResolvedComponentResult>()
