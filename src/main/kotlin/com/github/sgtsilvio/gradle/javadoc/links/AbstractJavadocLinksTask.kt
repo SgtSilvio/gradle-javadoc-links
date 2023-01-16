@@ -48,12 +48,10 @@ abstract class AbstractJavadocLinksTask : DefaultTask() {
 
     abstract fun useConfiguration(configuration: Configuration)
 
-    protected fun linkToStdLib(javaVersion: JavaLanguageVersion): String {
-        return if (javaVersion.asInt() >= 11) {
-            "-link https://docs.oracle.com/en/java/javase/${javaVersion}/docs/api/"
-        } else {
-            "-link https://docs.oracle.com/javase/${javaVersion}/docs/api/"
-        }
+    protected fun linkToStdLib(javaVersion: JavaLanguageVersion) = if (javaVersion.asInt() >= 11) {
+        "-link https://docs.oracle.com/en/java/javase/$javaVersion/docs/api/"
+    } else {
+        "-link https://docs.oracle.com/javase/$javaVersion/docs/api/"
     }
 
     protected fun linkToComponent(id: ModuleVersionIdentifier, javadocJar: File, outputDirectory: File): String {
