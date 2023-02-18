@@ -5,7 +5,10 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.file.ArchiveOperations
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileSystemOperations
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.property
@@ -27,18 +30,18 @@ abstract class AbstractJavadocLinksTask : DefaultTask() {
         { id -> "https://javadoc.io/doc/${id.group}/${id.name}/${id.version}/" }
 
     @get:Input
-    val javaVersion = project.objects.property<JavaLanguageVersion>()
+    val javaVersion: Property<JavaLanguageVersion> = project.objects.property<JavaLanguageVersion>()
         .convention(JavaLanguageVersion.of(JavaVersion.current().majorVersion))
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.NONE)
-    protected val javadocJars = project.objects.fileCollection()
+    protected val javadocJars: ConfigurableFileCollection = project.objects.fileCollection()
 
     @get:OutputDirectory
-    protected val outputDirectory = project.provider { temporaryDir }
+    protected val outputDirectory: Provider<File> = project.provider { temporaryDir }
 
     @get:Internal
-    internal val javadocOptionsFile = outputDirectory.map { it.resolve("javadoc.options") }
+    internal val javadocOptionsFile: Provider<File> = outputDirectory.map { it.resolve("javadoc.options") }
 
     @get:Inject
     protected abstract val fileSystemOperations: FileSystemOperations
