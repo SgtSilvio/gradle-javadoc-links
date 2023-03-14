@@ -12,6 +12,7 @@ import org.gradle.util.GradleVersion
 /**
  * @author Silvio Giebl
  */
+@Suppress("unused")
 class JavadocLinksPlugin : Plugin<Project> {
 
     companion object {
