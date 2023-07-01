@@ -15,11 +15,6 @@ import org.gradle.util.GradleVersion
 @Suppress("unused")
 class JavadocLinksPlugin : Plugin<Project> {
 
-    companion object {
-        const val TASK_NAME = JavaPlugin.JAVADOC_TASK_NAME + "Links"
-        const val CONFIGURATION_NAME = TASK_NAME
-    }
-
     override fun apply(project: Project) {
         project.plugins.apply(JavaPlugin::class)
 
@@ -56,3 +51,6 @@ class JavadocLinksPlugin : Plugin<Project> {
         }
     }
 }
+
+const val TASK_NAME = JavaPlugin.JAVADOC_TASK_NAME + "Links"
+const val CONFIGURATION_NAME = TASK_NAME
