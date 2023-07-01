@@ -1,4 +1,4 @@
-package com.github.sgtsilvio.gradle.javadoc.links
+package io.github.sgtsilvio.gradle.javadoc
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
@@ -43,7 +43,7 @@ internal class ConfigurationCacheTest {
             """
             plugins {
                 `java-library`
-                id("com.github.sgtsilvio.gradle.javadoc-links")
+                id("io.github.sgtsilvio.gradle.javadoc-links")
             }
             java {
                 toolchain {

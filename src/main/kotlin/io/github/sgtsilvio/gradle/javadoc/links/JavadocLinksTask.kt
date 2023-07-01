@@ -1,4 +1,4 @@
-package com.github.sgtsilvio.gradle.javadoc.links
+package io.github.sgtsilvio.gradle.javadoc.links
 
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.component.ComponentArtifactIdentifier

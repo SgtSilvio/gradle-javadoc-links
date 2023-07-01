@@ -1,4 +1,4 @@
-package com.github.sgtsilvio.gradle.javadoc.links
+package io.github.sgtsilvio.gradle.javadoc.links
 
 import org.gradle.api.artifacts.ComponentMetadataContext
 import org.gradle.api.artifacts.ComponentMetadataRule
