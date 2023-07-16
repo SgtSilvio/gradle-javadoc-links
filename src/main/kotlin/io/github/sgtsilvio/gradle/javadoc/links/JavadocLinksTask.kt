@@ -62,7 +62,7 @@ abstract class JavadocLinksTask : AbstractJavadocLinksTask() {
         while (componentsToProcess.isNotEmpty()) {
             val component = componentsToProcess.poll()
             if (processedComponents.add(component)) {
-                action.invoke(component)
+                action(component)
                 for (dependency in component.dependencies) {
                     componentsToProcess.offer((dependency as ResolvedDependencyResult).selected)
                 }

@@ -58,7 +58,7 @@ abstract class AbstractJavadocLinksTask : DefaultTask() {
     }
 
     protected fun linkToComponent(id: ModuleVersionIdentifier, javadocJar: File, outputDirectory: File): String {
-        val url = urlProvider.invoke(id)
+        val url = urlProvider(id)
         val offlineLocation = outputDirectory.resolve("${id.group}/${id.name}/${id.version}")
 
         fileSystemOperations.copy {
