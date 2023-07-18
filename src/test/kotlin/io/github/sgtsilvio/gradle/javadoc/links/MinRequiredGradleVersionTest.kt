@@ -1,4 +1,4 @@
-package io.github.sgtsilvio.gradle.javadoc
+package io.github.sgtsilvio.gradle.javadoc.links
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
