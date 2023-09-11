@@ -38,8 +38,8 @@ gradlePlugin {
     website.set(metadata.url)
     vcsUrl.set(metadata.scm.get().url)
     plugins {
-        create("javadoc-links") {
-            id = "$group.$name"
+        create("javadocLinks") {
+            id = "$group.javadoc-links"
             implementationClass = "$group.javadoc.links.JavadocLinksPlugin"
             displayName = metadata.readableName.get()
             description = project.description
