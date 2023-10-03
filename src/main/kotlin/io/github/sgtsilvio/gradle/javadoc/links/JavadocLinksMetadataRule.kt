@@ -27,6 +27,13 @@ abstract class JavadocLinksMetadataRule : ComponentMetadataRule {
                 existing.set(true)
             }
         }
+        // javadoc variant derived from maven metadata
+        // https://github.com/gradle/gradle/blob/c5566ea98bdc48ca42c1bcedae04cc9bd3cd9b1d/subprojects/dependency-management/src/main/java/org/gradle/internal/component/external/model/JavaEcosystemVariantDerivationStrategy.java#L60
+        withVariant("javadoc") {
+            attributes {
+                existing.set(true)
+            }
+        }
         addVariant("javadocLinkElements") {
             attributes {
                 if (!existing.get()) {

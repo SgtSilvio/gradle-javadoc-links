@@ -18,9 +18,7 @@ class JavadocLinksPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.plugins.apply(JavaPlugin::class)
 
-        if (GradleVersion.current() < GradleVersion.version("7.5")) {
-            project.dependencies.components.all<JavadocLinksMetadataRule>()
-        }
+        project.dependencies.components.all<JavadocLinksMetadataRule>()
 
         val configuration = project.configurations.create(CONFIGURATION_NAME) {
             isVisible = false
