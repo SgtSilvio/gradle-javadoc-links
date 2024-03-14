@@ -2,7 +2,7 @@
 
 [![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/io.github.sgtsilvio.gradle.javadoc-links?color=brightgreen&style=for-the-badge)](https://plugins.gradle.org/plugin/io.github.sgtsilvio.gradle.javadoc-links)
 [![GitHub](https://img.shields.io/github/license/sgtsilvio/gradle-javadoc-links?color=brightgreen&style=for-the-badge)](LICENSE)
-[![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/sgtsilvio/gradle-javadoc-links/check.yml?branch=master&style=for-the-badge)](https://github.com/SgtSilvio/gradle-javadoc-links/actions/workflows/check.yml?query=branch%3Amaster)
+[![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/sgtsilvio/gradle-javadoc-links/check.yml?branch=main&style=for-the-badge)](https://github.com/SgtSilvio/gradle-javadoc-links/actions/workflows/check.yml?query=branch%3Amain)
 
 Gradle plugin to ease defining Javadoc links
 - Links to JDK javadoc of the used java version
