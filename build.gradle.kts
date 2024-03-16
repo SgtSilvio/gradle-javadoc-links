@@ -7,10 +7,10 @@ plugins {
 }
 
 group = "io.github.sgtsilvio.gradle"
-description = "Gradle plugin to ease defining Javadoc links"
 
 metadata {
     readableName = "Gradle Javadoc Links Plugin"
+    description = "Gradle plugin to ease defining Javadoc links"
     license {
         apache2()
     }
