@@ -128,7 +128,7 @@ internal class MinRequiredGradleVersionTest {
         )
 
         val result = GradleRunner.create()
-            .withGradleVersion("6.7")
+            .withGradleVersion("7.4.2")
             .withProjectDir(projectDir)
             .withPluginClasspath()
             .withArguments("javadoc")

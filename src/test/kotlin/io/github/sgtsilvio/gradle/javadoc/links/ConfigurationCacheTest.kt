@@ -5,9 +5,8 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.ValueSource
 import java.io.File
 
 /**
@@ -28,9 +27,8 @@ internal class ConfigurationCacheTest {
         includedProjectDir = rootDir.resolve("included-project").apply { mkdir() }
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = ["6.8", "7.4.2"]) // ensure that version checks work: min version, >= 7.4
-    fun configurationCacheReused(gradleVersion: String) {
+    @Test
+    fun configurationCacheReused() {
         projectDir.resolve("settings.gradle.kts").writeText(
             """
             rootProject.name = "test"
@@ -130,7 +128,6 @@ internal class ConfigurationCacheTest {
         )
 
         val result = GradleRunner.create()
-            .withGradleVersion(gradleVersion)
             .withProjectDir(projectDir)
             .withPluginClasspath()
             .withArguments("javadoc", "--configuration-cache")
@@ -146,7 +143,6 @@ internal class ConfigurationCacheTest {
         projectDir.resolve("build").deleteRecursively()
 
         val result2 = GradleRunner.create()
-            .withGradleVersion(gradleVersion)
             .withProjectDir(projectDir)
             .withPluginClasspath()
             .withArguments("javadoc", "--configuration-cache")

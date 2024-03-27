@@ -21,7 +21,7 @@ plugins {
 
 ## Requirements
 
-- Gradle 6.7 or higher
+- Gradle 7.4 or higher
 
 ## Configuration
 

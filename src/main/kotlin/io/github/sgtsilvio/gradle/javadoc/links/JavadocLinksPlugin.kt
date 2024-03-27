@@ -7,7 +7,6 @@ import org.gradle.api.attributes.DocsType
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.kotlin.dsl.*
-import org.gradle.util.GradleVersion
 
 /**
  * @author Silvio Giebl
@@ -34,11 +33,7 @@ class JavadocLinksPlugin : Plugin<Project> {
 
         val javadoc = project.tasks.named<Javadoc>(JavaPlugin.JAVADOC_TASK_NAME)
 
-        val javadocLinksTaskClass = when {
-            GradleVersion.current() >= GradleVersion.version("7.4") -> JavadocLinksTask::class
-            else -> JavadocLinksTaskBefore_7_4::class
-        }
-        val javadocLinksTask = project.tasks.register(TASK_NAME, javadocLinksTaskClass) {
+        val javadocLinksTask = project.tasks.register<JavadocLinksTask>(TASK_NAME) {
             useConfiguration(configuration)
             javaVersion.set(javadoc.flatMap { it.javadocTool }.map { it.metadata.languageVersion })
         }
