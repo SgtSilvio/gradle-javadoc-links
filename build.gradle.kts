@@ -36,14 +36,10 @@ repositories {
 }
 
 gradlePlugin {
-    website = metadata.url
-    vcsUrl = metadata.scm.get().url
     plugins {
         create("javadocLinks") {
             id = "$group.javadoc-links"
             implementationClass = "$group.javadoc.links.JavadocLinksPlugin"
-            displayName = metadata.readableName.get()
-            description = project.description
             tags = listOf("javadoc", "links")
         }
     }
