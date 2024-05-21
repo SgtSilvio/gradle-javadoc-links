@@ -15,7 +15,7 @@ import org.gradle.kotlin.dsl.*
 class JavadocLinksPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        project.plugins.apply(JavaPlugin::class)
+        project.pluginManager.apply(JavaPlugin::class)
 
         project.dependencies.components.all<JavadocLinksMetadataRule>()
 
