@@ -55,6 +55,13 @@ testing {
     suites {
         "test"(JvmTestSuite::class) {
             useJUnitJupiter(libs.versions.junit.jupiter)
+            targets.configureEach {
+                testTask {
+                    javaLauncher = javaToolchains.launcherFor {
+                        languageVersion = JavaLanguageVersion.of(17)
+                    }
+                }
+            }
         }
     }
 }

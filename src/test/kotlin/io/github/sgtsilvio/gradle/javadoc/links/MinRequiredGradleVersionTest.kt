@@ -87,6 +87,9 @@ internal class MinRequiredGradleVersionTest {
             version = "0.1.0"
             java {
                 withJavadocJar()
+                toolchain {
+                    languageVersion.set(JavaLanguageVersion.of(11))
+                }
             }
             """.trimIndent()
         )
@@ -114,6 +117,9 @@ internal class MinRequiredGradleVersionTest {
             version = "0.1.0"
             java {
                 withJavadocJar()
+                toolchain {
+                    languageVersion.set(JavaLanguageVersion.of(11))
+                }
             }
             """.trimIndent()
         )
