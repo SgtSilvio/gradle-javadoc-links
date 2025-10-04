@@ -2,6 +2,7 @@ package io.github.sgtsilvio.gradle.javadoc.links
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
+import org.gradle.testkit.runner.internal.PluginUnderTestMetadataReading
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -29,8 +30,15 @@ internal class ConfigurationCacheTest {
 
     @Test
     fun configurationCacheReused() {
+        val pluginClasspath =
+            PluginUnderTestMetadataReading.readImplementationClasspath().joinToString("\", \"", "\"", "\"")
         projectDir.resolve("settings.gradle.kts").writeText(
             """
+            buildscript {
+                dependencies {
+                    classpath(files($pluginClasspath))
+                }
+            }
             rootProject.name = "test"
             include("sub-test")
             project(":sub-test").projectDir = file("sub-project")
@@ -135,7 +143,6 @@ internal class ConfigurationCacheTest {
 
         val result = GradleRunner.create()
             .withProjectDir(projectDir)
-            .withPluginClasspath()
             .withArguments("javadoc", "--configuration-cache")
             .build()
 
@@ -150,7 +157,6 @@ internal class ConfigurationCacheTest {
 
         val result2 = GradleRunner.create()
             .withProjectDir(projectDir)
-            .withPluginClasspath()
             .withArguments("javadoc", "--configuration-cache")
             .build()
 
