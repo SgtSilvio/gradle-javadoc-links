@@ -38,7 +38,7 @@ internal class MinRequiredGradleVersionTest {
             """.trimIndent()
         )
         projectDir.resolve("build.gradle.kts").writeText(
-            """
+            $$"""
             plugins {
                 `java-library`
                 id("io.github.sgtsilvio.gradle.javadoc-links")
@@ -61,8 +61,8 @@ internal class MinRequiredGradleVersionTest {
             tasks.javadocLinks {
                 urlProvider = { id ->
                     when (id.group) {
-                        "group" -> "https://group.com/${'$'}{id.name}/${'$'}{id.version}/"
-                        else -> "https://javadoc.io/doc/${'$'}{id.group}/${'$'}{id.name}/${'$'}{id.version}/"
+                        "group" -> "https://group.com/${id.name}/${id.version}/"
+                        else -> "https://javadoc.io/doc/${id.group}/${id.name}/${id.version}/"
                     }
                 }
             }
