@@ -9,7 +9,6 @@ import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.FileSystemOperations
-import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.jvm.toolchain.JavaLanguageVersion
@@ -37,7 +36,7 @@ abstract class JavadocLinksTask @Inject constructor(
         { id -> "https://javadoc.io/doc/${id.group}/${id.name}/${id.version}/" }
 
     @get:Input
-    val javaVersion: Property<JavaLanguageVersion> = project.objects.property<JavaLanguageVersion>()
+    val javaVersion = project.objects.property<JavaLanguageVersion>()
         .convention(JavaLanguageVersion.of(JavaVersion.current().majorVersion))
 
     @get:InputFiles
