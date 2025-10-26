@@ -20,7 +20,6 @@ class JavadocLinksPlugin : Plugin<Project> {
         project.dependencies.components.all<JavadocLinksMetadataRule>()
 
         val configuration = project.configurations.create(CONFIGURATION_NAME) {
-            isVisible = false
             isCanBeResolved = true
             isCanBeConsumed = false
             isTransitive = false
