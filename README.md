@@ -15,7 +15,7 @@ Gradle plugin to ease defining Javadoc links
 
 ```kotlin
 plugins {
-    id("io.github.sgtsilvio.gradle.javadoc-links") version "0.8.0"
+    id("io.github.sgtsilvio.gradle.javadoc-links") version "0.9.0"
 }
 ```
 
