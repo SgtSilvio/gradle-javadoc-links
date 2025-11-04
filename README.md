@@ -21,7 +21,7 @@ plugins {
 
 ## Requirements
 
-- Gradle 7.4 or higher
+- Gradle 7.6 or higher
 
 ## Configuration
 
@@ -36,7 +36,7 @@ tasks.javadocLinks {
 ### Dependencies
 
 ```kotlin
-configurations.javadocLinks {
-    setExtendsFrom(listOf(configurations.apiElements.get()))
+tasks.javadocLinks {
+    useConfiguration(configurations.apiElements.get())
 }
 ```

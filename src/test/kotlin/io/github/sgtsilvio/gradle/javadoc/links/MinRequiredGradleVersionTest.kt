@@ -57,6 +57,8 @@ internal class MinRequiredGradleVersionTest {
                 api("com.hivemq:hivemq-extension-sdk:4.7.0") // gradle metadata, javadocElements variant
                 api("io.netty:netty-handler:4.1.68.Final") // no gradle metadata, no javadocElements variant
                 api("io.reactivex.rxjava3:rxjava:3.1.8") // gradle metadata, no javadocElements variant
+                api(platform("io.dropwizard.metrics:metrics-bom:4.2.37")) // platform is ignored
+                api("io.dropwizard.metrics:metrics-core") // uses version from platform
             }
             tasks.javadocLinks {
                 urlProvider = { id ->
@@ -134,7 +136,7 @@ internal class MinRequiredGradleVersionTest {
         )
 
         val result = GradleRunner.create()
-            .withGradleVersion("7.4.2")
+            .withGradleVersion("7.6")
             .withProjectDir(projectDir)
             .withPluginClasspath()
             .withArguments("javadoc")
@@ -167,6 +169,14 @@ internal class MinRequiredGradleVersionTest {
         assertTrue(lines[3].matches(Regex("-linkoffline https://javadoc\\.io/doc/com\\.hivemq/hivemq-extension-sdk/4\\.7\\.0/ .*/build/tmp/javadocLinks/com\\.hivemq/hivemq-extension-sdk/4\\.7\\.0")))
         assertTrue(lines[4].matches(Regex("-linkoffline https://javadoc\\.io/doc/io\\.netty/netty-handler/4\\.1\\.68\\.Final/ .*/build/tmp/javadocLinks/io\\.netty/netty-handler/4\\.1\\.68\\.Final")))
         assertTrue(lines[5].matches(Regex("-linkoffline https://javadoc\\.io/doc/io\\.reactivex\\.rxjava3/rxjava/3\\.1\\.8/ .*/build/tmp/javadocLinks/io\\.reactivex\\.rxjava3/rxjava/3\\.1\\.8")))
-        assertEquals(6, lines.size)
+        assertTrue(lines[6].matches(Regex("-linkoffline https://javadoc\\.io/doc/io\\.dropwizard\\.metrics/metrics-core/4\\.2\\.37/ .*/build/tmp/javadocLinks/io\\.dropwizard\\.metrics/metrics-core/4\\.2\\.37")))
+        assertTrue(lines[7].matches(Regex("-linkoffline https://javadoc\\.io/doc/org\\.slf4j/slf4j-api/1\\.7\\.36/ .*/build/tmp/javadocLinks/org\\.slf4j/slf4j-api/1\\.7\\.36")))
+        assertTrue(lines[8].matches(Regex("-linkoffline https://javadoc\\.io/doc/io\\.netty/netty-codec/4\\.1\\.68\\.Final/ .*/build/tmp/javadocLinks/io\\.netty/netty-codec/4\\.1\\.68\\.Final")))
+        assertTrue(lines[9].matches(Regex("-linkoffline https://javadoc\\.io/doc/io\\.netty/netty-transport/4\\.1\\.68\\.Final/ .*/build/tmp/javadocLinks/io\\.netty/netty-transport/4\\.1\\.68\\.Final")))
+        assertTrue(lines[10].matches(Regex("-linkoffline https://javadoc\\.io/doc/io\\.netty/netty-resolver/4\\.1\\.68\\.Final/ .*/build/tmp/javadocLinks/io\\.netty/netty-resolver/4\\.1\\.68\\.Final")))
+        assertTrue(lines[11].matches(Regex("-linkoffline https://javadoc\\.io/doc/io\\.netty/netty-buffer/4\\.1\\.68\\.Final/ .*/build/tmp/javadocLinks/io\\.netty/netty-buffer/4\\.1\\.68\\.Final")))
+        assertTrue(lines[12].matches(Regex("-linkoffline https://javadoc\\.io/doc/io\\.netty/netty-common/4\\.1\\.68\\.Final/ .*/build/tmp/javadocLinks/io\\.netty/netty-common/4\\.1\\.68\\.Final")))
+        assertTrue(lines[13].matches(Regex("-linkoffline https://javadoc\\.io/doc/org\\.reactivestreams/reactive-streams/1\\.0\\.4/ .*/build/tmp/javadocLinks/org\\.reactivestreams/reactive-streams/1\\.0\\.4")))
+        assertEquals(14, lines.size)
     }
 }

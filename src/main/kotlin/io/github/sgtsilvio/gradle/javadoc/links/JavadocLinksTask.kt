@@ -7,12 +7,15 @@ import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.artifacts.component.ComponentArtifactIdentifier
 import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
+import org.gradle.api.attributes.Category
+import org.gradle.api.attributes.DocsType
 import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.listProperty
+import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.property
 import java.io.File
 import java.util.*
@@ -56,7 +59,13 @@ abstract class JavadocLinksTask @Inject constructor(
     internal val javadocOptionsFile: Provider<File> = outputDirectory.map { it.resolve("javadoc.options") }
 
     fun useConfiguration(configuration: Configuration) {
-        val artifacts = configuration.incoming.artifacts
+        val artifacts = configuration.incoming.artifactView {
+            withVariantReselection()
+            attributes.apply {
+                attribute(Category.CATEGORY_ATTRIBUTE, project.objects.named(Category.DOCUMENTATION))
+                attribute(DocsType.DOCS_TYPE_ATTRIBUTE, project.objects.named(DocsType.JAVADOC))
+            }
+        }.artifacts
         javadocJars.setFrom(artifacts.artifactFiles)
         artifactIds.set(artifacts.resolvedArtifacts.map { results -> results.map { result -> result.id } })
         rootComponent.set(configuration.incoming.resolutionResult.rootComponent)
@@ -74,11 +83,11 @@ abstract class JavadocLinksTask @Inject constructor(
         val options = mutableListOf<String>()
         options += linkToStdLib(javaVersion)
 
-        val idToJavadocJar = artifactIds.map { it.componentIdentifier }.zip(javadocJars).toMap()
-        iterateComponents(rootComponent) { component ->
-            val id = component.moduleVersion!!
-            val javadocJar = idToJavadocJar[component.id]!!
-            options += linkToComponent(id, javadocJar, outputDirectory)
+        val componentIdToCoordinates =
+            rootComponent.collectComponents().associate { component -> component.id to component.moduleVersion }
+        for ((artifactId, javadocJar) in artifactIds.zip(javadocJars)) {
+            val coordinates = componentIdToCoordinates[artifactId.componentIdentifier]!!
+            options += linkToComponent(coordinates, javadocJar, outputDirectory)
         }
 
         javadocOptionsFile.writeText(options.joinToString("\n"))
@@ -108,23 +117,20 @@ abstract class JavadocLinksTask @Inject constructor(
         return "-linkoffline $url $offlineLocation"
     }
 
-    private inline fun iterateComponents(
-        rootComponent: ResolvedComponentResult,
-        action: (ResolvedComponentResult) -> Unit,
-    ) {
-        val processedComponents = HashSet<ResolvedComponentResult>()
+    private fun ResolvedComponentResult.collectComponents(): Set<ResolvedComponentResult> {
+        val components = HashSet<ResolvedComponentResult>()
         val componentsToProcess = LinkedList<ResolvedComponentResult>()
-        for (dependency in rootComponent.dependencies) {
+        for (dependency in dependencies) {
             componentsToProcess.offer((dependency as ResolvedDependencyResult).selected)
         }
         while (componentsToProcess.isNotEmpty()) {
             val component = componentsToProcess.poll()
-            if (processedComponents.add(component)) {
-                action(component)
+            if (components.add(component)) {
                 for (dependency in component.dependencies) {
                     componentsToProcess.offer((dependency as ResolvedDependencyResult).selected)
                 }
             }
         }
+        return components
     }
 }
