@@ -17,6 +17,7 @@ import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.property
+import org.gradle.work.DisableCachingByDefault
 import java.io.File
 import java.util.*
 import javax.inject.Inject
@@ -24,6 +25,7 @@ import javax.inject.Inject
 /**
  * @author Silvio Giebl
  */
+@DisableCachingByDefault(because = "Not worth caching")
 abstract class JavadocLinksTask @Inject constructor(
     private val fileSystemOperations: FileSystemOperations,
     private val archiveOperations: ArchiveOperations,
