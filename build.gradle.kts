@@ -1,3 +1,4 @@
+import org.gradle.plugin.compatibility.compatibility
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
@@ -48,6 +49,11 @@ gradlePlugin {
             id = "$group.javadoc-links"
             implementationClass = "$group.javadoc.links.JavadocLinksPlugin"
             tags = listOf("javadoc", "links")
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
     }
 }
