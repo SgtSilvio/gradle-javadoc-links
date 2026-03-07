@@ -5,8 +5,9 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import java.io.File
 
 /**
@@ -27,8 +28,15 @@ internal class MinRequiredGradleVersionTest {
         includedProjectDir = rootDir.resolve("included-project").apply { mkdir() }
     }
 
-    @Test
-    fun projectAndIncludedBuildAndExternalDependenciesWork() {
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            "7.6",
+            "8.0",
+            "9.0",
+        ]
+    )
+    fun projectAndIncludedBuildAndExternalDependenciesWork(gradleVersion: String) {
         projectDir.resolve("settings.gradle.kts").writeText(
             """
             rootProject.name = "test"
@@ -137,7 +145,7 @@ internal class MinRequiredGradleVersionTest {
         )
 
         val result = GradleRunner.create()
-            .withGradleVersion("7.6")
+            .withGradleVersion(gradleVersion)
             .withProjectDir(projectDir)
             .withPluginClasspath()
             .withArguments("javadoc")
