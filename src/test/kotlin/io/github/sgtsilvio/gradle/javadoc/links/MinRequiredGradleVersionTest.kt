@@ -57,8 +57,9 @@ internal class MinRequiredGradleVersionTest {
                 api("com.hivemq:hivemq-extension-sdk:4.7.0") // gradle metadata, javadocElements variant
                 api("io.netty:netty-handler:4.1.68.Final") // no gradle metadata, no javadocElements variant
                 api("io.reactivex.rxjava3:rxjava:3.1.8") // gradle metadata, no javadocElements variant
-                api(platform("io.dropwizard.metrics:metrics-bom:4.2.37")) // platform is ignored
+                api(platform("io.dropwizard.metrics:metrics-bom:4.2.37")) // platform is ignored, no gradle metadata
                 api("io.dropwizard.metrics:metrics-core") // uses version from platform
+                api(platform("org.junit:junit-bom:6.0.3")) // platform is ignored, gradle metadata
             }
             tasks.javadocLinks {
                 urlProvider = { id ->
