@@ -4,7 +4,6 @@ import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -15,19 +14,6 @@ import java.io.File
  */
 internal class MinRequiredGradleVersionTest {
 
-    @TempDir
-    lateinit var rootDir: File
-    private lateinit var projectDir: File
-    private lateinit var subProjectDir: File
-    private lateinit var includedProjectDir: File
-
-    @BeforeEach
-    fun setUp() {
-        projectDir = rootDir.resolve("project").apply { mkdir() }
-        subProjectDir = projectDir.resolve("sub-project").apply { mkdir() }
-        includedProjectDir = rootDir.resolve("included-project").apply { mkdir() }
-    }
-
     @ParameterizedTest
     @ValueSource(
         strings = [
@@ -36,7 +22,10 @@ internal class MinRequiredGradleVersionTest {
             "9.0",
         ]
     )
-    fun projectAndIncludedBuildAndExternalDependenciesWork(gradleVersion: String) {
+    fun projectAndIncludedBuildAndExternalDependenciesWork(gradleVersion: String, @TempDir rootDir: File) {
+        val projectDir = rootDir.resolve("project").apply { mkdir() }
+        val subProjectDir = projectDir.resolve("sub-project").apply { mkdir() }
+        val includedProjectDir = rootDir.resolve("included-project").apply { mkdir() }
         projectDir.resolve("settings.gradle.kts").writeText(
             """
             rootProject.name = "test"
@@ -155,10 +144,10 @@ internal class MinRequiredGradleVersionTest {
         assertEquals(TaskOutcome.SUCCESS, result.task(":included-project:javadocJar")?.outcome)
         assertEquals(TaskOutcome.SUCCESS, result.task(":javadocLinks")?.outcome)
         assertEquals(TaskOutcome.SUCCESS, result.task(":javadoc")?.outcome)
-        assertJavadocLinksFiles()
+        assertJavadocLinksFiles(projectDir)
     }
 
-    private fun assertJavadocLinksFiles() {
+    private fun assertJavadocLinksFiles(projectDir: File) {
         val buildDir = projectDir.resolve("build/tmp/javadocLinks")
         assertTrue(buildDir.resolve("javadoc.options").exists())
         assertTrue(buildDir.resolve("group/sub-test/0.1.0/element-list").exists())

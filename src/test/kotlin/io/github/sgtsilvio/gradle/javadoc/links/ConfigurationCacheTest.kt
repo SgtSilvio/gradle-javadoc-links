@@ -5,7 +5,6 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.testkit.runner.internal.PluginUnderTestMetadataReading
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -15,21 +14,11 @@ import java.io.File
  */
 internal class ConfigurationCacheTest {
 
-    @TempDir
-    lateinit var rootDir: File
-    private lateinit var projectDir: File
-    private lateinit var subProjectDir: File
-    private lateinit var includedProjectDir: File
-
-    @BeforeEach
-    fun setUp() {
-        projectDir = rootDir.resolve("project").apply { mkdir() }
-        subProjectDir = projectDir.resolve("sub-project").apply { mkdir() }
-        includedProjectDir = rootDir.resolve("included-project").apply { mkdir() }
-    }
-
     @Test
-    fun configurationCacheReused() {
+    fun configurationCacheReused(@TempDir rootDir: File) {
+        val projectDir = rootDir.resolve("project").apply { mkdir() }
+        val subProjectDir = projectDir.resolve("sub-project").apply { mkdir() }
+        val includedProjectDir = rootDir.resolve("included-project").apply { mkdir() }
         val pluginClasspath =
             PluginUnderTestMetadataReading.readImplementationClasspath().joinToString("\", \"", "\"", "\"")
         projectDir.resolve("settings.gradle.kts").writeText(
@@ -154,7 +143,7 @@ internal class ConfigurationCacheTest {
         assertEquals(TaskOutcome.SUCCESS, result.task(":included-project:javadocJar")?.outcome)
         assertEquals(TaskOutcome.SUCCESS, result.task(":javadocLinks")?.outcome)
         assertEquals(TaskOutcome.SUCCESS, result.task(":javadoc")?.outcome)
-        assertJavadocLinksFiles()
+        assertJavadocLinksFiles(projectDir)
 
         projectDir.resolve("build").deleteRecursively()
 
@@ -168,10 +157,10 @@ internal class ConfigurationCacheTest {
         assertEquals(TaskOutcome.UP_TO_DATE, result2.task(":included-project:javadocJar")?.outcome)
         assertEquals(TaskOutcome.SUCCESS, result2.task(":javadocLinks")?.outcome)
         assertEquals(TaskOutcome.SUCCESS, result2.task(":javadoc")?.outcome)
-        assertJavadocLinksFiles()
+        assertJavadocLinksFiles(projectDir)
     }
 
-    private fun assertJavadocLinksFiles() {
+    private fun assertJavadocLinksFiles(projectDir: File) {
         val buildDir = projectDir.resolve("build/tmp/javadocLinks")
         assertTrue(buildDir.resolve("javadoc.options").exists())
         assertTrue(buildDir.resolve("group/sub-test/0.1.0/element-list").exists())
