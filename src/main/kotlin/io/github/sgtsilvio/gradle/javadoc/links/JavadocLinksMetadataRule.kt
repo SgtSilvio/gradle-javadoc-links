@@ -41,6 +41,8 @@ abstract class JavadocLinksMetadataRule : ComponentMetadataRule {
                     attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType.JAVADOC))
                     attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
                     attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
+                } else {
+                    attribute(Category.CATEGORY_ATTRIBUTE, objects.named("ignore"))
                 }
             }
             withFiles {
