@@ -1,12 +1,14 @@
 package io.github.sgtsilvio.gradle.javadoc.links
 
+import io.github.sgtsilvio.gradle.testkit.addArguments
+import io.github.sgtsilvio.gradle.testkit.withJavaHome
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.ValueSource
+import org.junit.jupiter.params.provider.CsvSource
 import java.io.File
 
 /**
@@ -15,14 +17,18 @@ import java.io.File
 internal class MinRequiredGradleVersionTest {
 
     @ParameterizedTest
-    @ValueSource(
-        strings = [
-            "7.6",
-            "8.0",
-            "9.0",
+    @CsvSource(
+        value = [
+            "7.6, 8",
+            "8.0, 8",
+            "9.0, 17",
         ]
     )
-    fun projectAndIncludedBuildAndExternalDependenciesWork(gradleVersion: String, @TempDir rootDir: File) {
+    fun projectAndIncludedBuildAndExternalDependenciesWork(
+        gradleVersion: String,
+        javaVersion: String,
+        @TempDir rootDir: File,
+    ) {
         val projectDir = rootDir.resolve("project").apply { mkdir() }
         val subProjectDir = projectDir.resolve("sub-project").apply { mkdir() }
         val includedProjectDir = rootDir.resolve("included-project").apply { mkdir() }
@@ -137,7 +143,8 @@ internal class MinRequiredGradleVersionTest {
             .withGradleVersion(gradleVersion)
             .withProjectDir(projectDir)
             .withPluginClasspath()
-            .withArguments("javadoc")
+            .withJavaHome(System.getProperty("java.home.$javaVersion"))
+            .addArguments("javadoc")
             .build()
 
         assertEquals(TaskOutcome.SUCCESS, result.task(":sub-test:javadocJar")?.outcome)
