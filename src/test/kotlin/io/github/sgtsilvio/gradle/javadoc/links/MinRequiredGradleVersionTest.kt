@@ -168,7 +168,7 @@ internal class MinRequiredGradleVersionTest {
         assertTrue(buildDir.resolve("io.reactivex.rxjava3/rxjava/3.1.8/element-list").exists())
         assertTrue(buildDir.resolve("io.reactivex.rxjava3/rxjava/3.1.8/package-list").exists())
         val lines = buildDir.resolve("javadoc.options").readLines()
-        assertEquals(lines[0], "-link https://docs.oracle.com/en/java/javase/11/docs/api/")
+        assertEquals("-link https://docs.oracle.com/en/java/javase/11/docs/api/", lines[0])
         assertTrue(lines[1].matches(Regex("-linkoffline https://group\\.com/sub-test/0\\.1\\.0/ .*/build/tmp/javadocLinks/group/sub-test/0\\.1\\.0")))
         assertTrue(lines[2].matches(Regex("-linkoffline https://group\\.com/included-test/0\\.1\\.0/ .*/build/tmp/javadocLinks/group/included-test/0\\.1\\.0")))
         assertTrue(lines[3].matches(Regex("-linkoffline https://javadoc\\.io/doc/com\\.hivemq/hivemq-extension-sdk/4\\.7\\.0/ .*/build/tmp/javadocLinks/com\\.hivemq/hivemq-extension-sdk/4\\.7\\.0")))
